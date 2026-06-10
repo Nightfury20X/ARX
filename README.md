@@ -1,2 +1,2 @@
 # ARX
-Rochester Startup Idea
+Rochester Startup Wednesday
