@@ -1,0 +1,67 @@
+{
+  "model_type": "numpy_logistic_fallback",
+  "target_column": "bad_outcome_8w",
+  "metrics": {
+    "train": {
+      "rows": 2580,
+      "positive_rate": 0.517829457364341,
+      "roc_auc": 0.8715799911431157,
+      "average_precision": 0.9039941356656587,
+      "brier": 0.14111119787890591
+    },
+    "validation": {
+      "rows": 551,
+      "positive_rate": 0.30127041742286753,
+      "roc_auc": 0.7994054138632452,
+      "average_precision": 0.7465867995857193,
+      "brier": 0.18857897656084402
+    },
+    "test": {
+      "rows": 473,
+      "positive_rate": 0.3298097251585624,
+      "roc_auc": 0.7820108387931731,
+      "average_precision": 0.7432424787944791,
+      "brier": 0.22112004661680928
+    }
+  },
+  "split_weeks": {
+    "train_min": "2010-11-29",
+    "train_max": "2011-07-11",
+    "validation_min": "2011-07-18",
+    "validation_max": "2011-08-29",
+    "test_min": "2011-09-05",
+    "test_max": "2011-10-10"
+  },
+  "financial_features": [
+    "mrr",
+    "arr",
+    "mrr_change_pct",
+    "gross_revenue",
+    "net_revenue",
+    "cancellation_amount",
+    "cancellation_rate",
+    "top_customer_concentration",
+    "active_customers",
+    "active_customer_change_pct",
+    "invoice_count"
+  ],
+  "behavioral_features": [
+    "acceptance_rate",
+    "regeneration_rate",
+    "session_count",
+    "active_users",
+    "events_per_session",
+    "session_duration_change_pct",
+    "champion_user_rate",
+    "frustration_score",
+    "support_ticket_count"
+  ],
+  "rule_score_features": [
+    "output_acceptance_score",
+    "engagement_score",
+    "retention_score",
+    "sentiment_score",
+    "concentration_score",
+    "capital_ready_rule_score"
+  ]
+}
