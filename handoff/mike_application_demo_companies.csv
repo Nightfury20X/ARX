@@ -1,0 +1,13 @@
+company_name,company_id,company_identity_note,ein,email,arr,behavioral_consent,submission_date,capital_ready_score,final_tier,final_advance_rate
+Demo AI Co 01,arx_002,Fake demo application company for workflow testing; not a real company,00-1000000,founder01@demoai.example,265419.06105,True,2026-06-15,90.23,1,0.875
+Demo AI Co 02,arx_005,Fake demo application company for workflow testing; not a real company,00-1000001,founder02@demoai.example,69807.639,True,2026-06-15,89.07,1,0.875
+Demo AI Co 03,arx_069,Fake demo application company for workflow testing; not a real company,00-1000002,founder03@demoai.example,136525.07055,True,2026-06-15,79.7,2,0.75
+Demo AI Co 04,arx_008,Fake demo application company for workflow testing; not a real company,00-1000003,founder04@demoai.example,45525.51959999999,True,2026-06-15,75.37,2,0.75
+Demo AI Co 05,arx_024,Fake demo application company for workflow testing; not a real company,00-1000004,founder05@demoai.example,147981.9231,True,2026-06-15,73.69,2,0.75
+Demo AI Co 06,arx_006,Fake demo application company for workflow testing; not a real company,00-1000005,founder06@demoai.example,78007.30574999998,True,2026-06-15,73.13,2,0.75
+Demo AI Co 07,arx_061,Fake demo application company for workflow testing; not a real company,00-1000006,founder07@demoai.example,79858.27575,True,2026-06-15,71.27,2,0.75
+Demo AI Co 08,arx_043,Fake demo application company for workflow testing; not a real company,00-1000007,founder08@demoai.example,168435.53264999998,True,2026-06-15,70.96,2,0.75
+Demo AI Co 09,arx_031,Fake demo application company for workflow testing; not a real company,00-1000008,founder09@demoai.example,153036.63540000003,True,2026-06-15,70.66,2,0.75
+Demo AI Co 10,arx_049,Fake demo application company for workflow testing; not a real company,00-1000009,founder10@demoai.example,101957.81475,True,2026-06-15,70.13,2,0.75
+Demo AI Co 11,arx_074,Fake demo application company for workflow testing; not a real company,00-1000010,founder11@demoai.example,94130.81864999996,True,2026-06-15,70.01,2,0.75
+Demo AI Co 12,arx_041,Fake demo application company for workflow testing; not a real company,00-1000011,founder12@demoai.example,181775.03025,True,2026-06-15,69.93,3,0.575

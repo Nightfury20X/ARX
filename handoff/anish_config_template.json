@@ -1,0 +1,37 @@
+{
+  "company_id": "demo_company_001",
+  "analytics_sources": [
+    "mixpanel",
+    "amplitude"
+  ],
+  "mixpanel": {
+    "session_start_event": "session_start",
+    "session_end_event": "session_end",
+    "accepted_output_events": [
+      "output_used",
+      "generation_accepted",
+      "copy_to_clipboard"
+    ],
+    "rejected_output_events": [
+      "regenerate",
+      "retry",
+      "reject_output"
+    ],
+    "duration_property": "duration_seconds"
+  },
+  "amplitude": {
+    "active_user_event": "_active",
+    "session_event": "session_start",
+    "champion_user_rule": ">=3 sessions per week"
+  },
+  "output_contract": [
+    "company_id",
+    "week_start",
+    "acceptance_rate",
+    "session_count",
+    "session_duration_change_pct",
+    "active_users",
+    "events_per_session",
+    "champion_user_rate"
+  ]
+}
