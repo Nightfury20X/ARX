@@ -71,6 +71,22 @@ Outputs:
 - `models/metrics.json`
 - `data/processed/latest_arx_scores.csv`
 
+## Dashboard UI
+
+Vaibhav's ARX Intelligence Dashboard lives in `ui/`. The repository is treated as
+a monorepo: scoring/model work stays at the root, while all frontend code,
+frontend tests, UI docs, and agent context belong under `ui/`.
+
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+The first dashboard implementation reads the Vaibhav handoff CSVs from
+`handoff/` and uses `capital_ready_score` as the primary higher-is-healthier
+founder-facing score.
+
 ## Iranian Churn Dataset
 
 The UCI Iranian Churn dataset is useful as a later external sanity check for
