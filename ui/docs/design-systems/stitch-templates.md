@@ -29,7 +29,7 @@ Default implementation.
 - Typography: Inter, smaller table-first hierarchy.
 - Shape: 6px cards, squared inputs, compact controls.
 - Layout: table and filters dominate, scorecard secondary.
-- Best for: NightFury20X/Kiran audit and finance review workflows.
+- Best for: scoring audit and finance review workflows.
 
 ## 3. Signal Radar
 
@@ -60,5 +60,5 @@ Default implementation.
 - Typography: Inter with monospace labels for fields and adapters.
 - Shape: 8px flow nodes, thin borders, compact cards.
 - Layout: data-flow diagram first, then dashboard rendering and simulator.
-- Best for: explaining Anish/Kiran/Vaibhav ownership boundaries.
-
+- Best for: explaining data ownership boundaries across collection, scoring,
+  display, and application workflows.

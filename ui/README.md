@@ -1,8 +1,8 @@
 # ARX Dashboard UI
 
-This package contains Vaibhav's ARX Intelligence Dashboard. It is isolated under
-`ui/` because the ARX repository is a monorepo: the Python scoring pipeline stays
-at the root, and all frontend work lives here.
+This package contains the ARX Intelligence Dashboard. It is isolated under `ui/`
+because the ARX repository is a monorepo: the Python scoring pipeline stays at
+the root, and all frontend work lives here.
 
 ## Quick Start
 
@@ -73,4 +73,3 @@ AIRTABLE_API_KEY=
 AIRTABLE_BASE_ID=
 AIRTABLE_SCORES_TABLE=arx_scores
 ```
-

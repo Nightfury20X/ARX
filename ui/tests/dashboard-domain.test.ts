@@ -32,7 +32,7 @@ const baseRow = {
 };
 
 describe("dashboard data normalization", () => {
-  it("maps Vaibhav latest-score CSV rows to the UI contract", () => {
+  it("maps latest-score CSV rows to the UI contract", () => {
     const record = mapScoreRow(baseRow);
 
     expect(record.companyId).toBe("arx_001");

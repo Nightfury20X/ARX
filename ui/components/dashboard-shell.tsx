@@ -122,7 +122,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
           <Database className="mx-auto h-9 w-9 text-arx-blue" />
           <h1 className="mt-4 text-2xl font-bold">No dashboard data found</h1>
           <p className="mt-3 text-sm leading-6 text-arx-muted">
-            The UI expects Vaibhav handoff CSV files at ../handoff. Add the latest score
+            The UI expects dashboard CSV files at ../handoff. Add the latest score
             and trend CSVs to render the dashboard.
           </p>
         </section>
@@ -202,15 +202,15 @@ function Hero({ summaryDate }: { summaryDate: string }) {
         <div className="min-w-0">
           <div className="inline-flex items-center gap-2 rounded-full border border-arx-blue/40 bg-arx-blue/15 px-3 py-1 text-xs font-medium text-blue-100">
             <Sparkles className="h-3.5 w-3.5" />
-            Vaibhav owns dashboard, simulator, behavioral-rate boost, and UI architecture
+            ARX Intelligence dashboard - score, signals, trends, and advance guidance
           </div>
           <h1 className="mt-4 max-w-4xl text-3xl font-bold tracking-normal text-white sm:text-4xl lg:text-5xl">
             Capital readiness for AI companies, updated from ARX scoring signals.
           </h1>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-arx-muted sm:text-base">
-            This MVP reads NightFury20X/Kiran handoff data, ranks synthetic borrower
-            buckets by capital-ready score, and turns the score into founder-facing
-            advance guidance.
+            This MVP reads ARX scoring data, ranks synthetic borrower buckets by
+            capital-ready score, and turns the score into founder-facing advance
+            guidance.
           </p>
         </div>
         <div className="rounded-lg border border-arx-line bg-arx-panel p-4">
@@ -383,7 +383,7 @@ function CompanyTable({
         <div>
           <h2 className="text-base font-semibold text-white">Latest score records</h2>
           <p className="mt-1 text-xs text-arx-muted">
-            {records.length} matching companies from Vaibhav handoff data
+            {records.length} matching companies from dashboard scoring data
           </p>
         </div>
         <BarChart3 className="h-5 w-5 text-arx-cyan" />
@@ -659,7 +659,7 @@ function TrendPanel({
         <div>
           <h2 className="text-base font-semibold text-white">8-week capital-ready trend</h2>
           <p className="mt-1 text-xs text-arx-muted">
-            {company.companyId} historical records from Vaibhav trend handoff.
+            {company.companyId} historical records from dashboard trend data.
           </p>
         </div>
         <LineChartIcon className="h-5 w-5 text-arx-cyan" />
