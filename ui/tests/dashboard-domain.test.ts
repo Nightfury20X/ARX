@@ -7,7 +7,13 @@ import {
   getScoreTone,
   getWeakestSignals
 } from "@/lib/domain/dashboard";
-import { mapScoreRow, mapTrendRow } from "@/lib/data/csv-dashboard-repository";
+import {
+  mapApplicationRow,
+  mapBehavioralRow,
+  mapFinancialMetricRow,
+  mapScoreRow,
+  mapTrendRow
+} from "@/lib/data/csv-dashboard-repository";
 import type { ScoreRecord } from "@/types/dashboard";
 
 const baseRow = {
@@ -49,6 +55,67 @@ describe("dashboard data normalization", () => {
 
     expect(trendRecord.weekStart).toBe("2011-11-21");
     expect(trendRecord.capitalReadyScore).toBe(89.5);
+  });
+
+  it("maps application rows for the application workflow section", () => {
+    const application = mapApplicationRow({
+      company_name: "Demo AI Co 01",
+      company_id: "arx_001",
+      company_identity_note: "Fake demo application company",
+      arr: "450000",
+      behavioral_consent: "True",
+      submission_date: "2026-06-15",
+      capital_ready_score: "89.5",
+      final_tier: "1",
+      final_advance_rate: "0.875"
+    });
+
+    expect(application.companyName).toBe("Demo AI Co 01");
+    expect(application.behavioralConsent).toBe(true);
+    expect(application.advanceRate).toBe(0.875);
+  });
+
+  it("maps behavioral connector rows for proof metrics", () => {
+    const behavioral = mapBehavioralRow({
+      company_id: "arx_001",
+      company_identity_note: "Synthetic borrower bucket",
+      week_start: "2011-11-21",
+      acceptance_rate: "0.88",
+      session_count: "24",
+      session_duration_change_pct: "0.14",
+      active_users: "9",
+      events_per_session: "7.5",
+      champion_user_rate: "0.31",
+      data_sources: "uci_retail_proxy,synthetic_behavior"
+    });
+
+    expect(behavioral.acceptanceRate).toBe(0.88);
+    expect(behavioral.sessionCount).toBe(24);
+    expect(behavioral.dataSources).toEqual(["uci_retail_proxy", "synthetic_behavior"]);
+  });
+
+  it("maps financial metric rows for presentation metrics", () => {
+    const financial = mapFinancialMetricRow({
+      company_id: "arx_001",
+      company_identity_note: "Synthetic borrower bucket",
+      week_start: "2011-11-21",
+      gross_revenue: "12000",
+      net_revenue: "11800",
+      mrr: "37500",
+      arr: "450000",
+      mrr_change_pct: "0.12",
+      cancellation_rate: "0.04",
+      active_customers: "18",
+      top_customer_concentration: "0.22",
+      capital_ready_score: "89.5",
+      final_tier: "1",
+      final_advance_rate: "0.875",
+      final_credit_action: "Advance eligible"
+    });
+
+    expect(financial.netRevenue).toBe(11800);
+    expect(financial.creditAction).toBe("Advance eligible");
+    expect(financial.topCustomerConcentration).toBe(0.22);
   });
 });
 

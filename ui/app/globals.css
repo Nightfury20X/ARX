@@ -13,6 +13,7 @@
 html {
   min-width: 320px;
   background: #05070d;
+  scroll-behavior: smooth;
 }
 
 body {

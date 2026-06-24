@@ -2,16 +2,24 @@
 
 import {
   Activity,
+  ArrowRight,
   ArrowDownUp,
   BarChart3,
+  CheckCircle2,
   CircleDollarSign,
+  ClipboardList,
   Database,
   Gauge,
   LineChart as LineChartIcon,
+  LockKeyhole,
+  Network,
+  Rocket,
   Search,
   ShieldCheck,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  WalletCards,
+  Zap
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -37,7 +45,13 @@ import {
   percent,
   sortTrend
 } from "@/lib/domain/dashboard";
-import type { CreditAction, DashboardData, ScoreRecord, TrendRecord } from "@/types/dashboard";
+import type {
+  ApplicationRecord,
+  CreditAction,
+  DashboardData,
+  ScoreRecord,
+  TrendRecord
+} from "@/types/dashboard";
 
 type SortKey =
   | "companyId"
@@ -133,46 +147,70 @@ export function DashboardShell({ data }: DashboardShellProps) {
   return (
     <main className="dashboard-shell">
       <TopBar />
-      <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <Hero summaryDate={selectedCompany.scoringDate} />
-        <KpiGrid data={data} />
+      <ProductHero data={data} selectedCompany={selectedCompany} />
+      <JudgeProof data={data} />
+      <MarketAndBusinessModel data={data} />
+      <DataFlowShowcase />
+      <ScoringIntelligence />
 
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
-          <div className="flex min-w-0 flex-col gap-6">
-            <CompanyControls
-              actionFilter={actionFilter}
-              query={query}
-              setActionFilter={setActionFilter}
-              setQuery={setQuery}
-              sortDirection={sortDirection}
-              sortKey={sortKey}
-              setSortDirection={setSortDirection}
-              setSortKey={setSortKey}
-            />
-            <CompanyTable
-              records={filteredScores}
-              selectedCompanyId={selectedCompany.companyId}
-              onSelect={setSelectedCompanyId}
-              sortKey={sortKey}
-              sortDirection={sortDirection}
-              setSortDirection={setSortDirection}
-              setSortKey={setSortKey}
-            />
-            <TrendPanel company={selectedCompany} trend={selectedTrend} />
-          </div>
+      <section id="dashboard" className="scroll-mt-24 border-t border-white/10 bg-arx-ink/35">
+        <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
+          <SectionHeading
+            eyebrow="Live product"
+            title="Founder dashboard and advance simulator"
+            description="The proof is not a slide. Judges can inspect scored companies, sort the portfolio, select a borrower bucket, review signal breakdowns, and change ARR in the simulator."
+          />
+          <Hero summaryDate={selectedCompany.scoringDate} />
+          <KpiGrid data={data} />
 
-          <aside className="flex min-w-0 flex-col gap-6">
-            <ScoreCard company={selectedCompany} />
-            <SignalBreakdown company={selectedCompany} />
-            <AdvanceSimulator company={selectedCompany} />
-          </aside>
-        </section>
-      </div>
+          <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
+            <div className="flex min-w-0 flex-col gap-6">
+              <CompanyControls
+                actionFilter={actionFilter}
+                query={query}
+                setActionFilter={setActionFilter}
+                setQuery={setQuery}
+                sortDirection={sortDirection}
+                sortKey={sortKey}
+                setSortDirection={setSortDirection}
+                setSortKey={setSortKey}
+              />
+              <CompanyTable
+                records={filteredScores}
+                selectedCompanyId={selectedCompany.companyId}
+                onSelect={setSelectedCompanyId}
+                sortKey={sortKey}
+                sortDirection={sortDirection}
+                setSortDirection={setSortDirection}
+                setSortKey={setSortKey}
+              />
+              <TrendPanel company={selectedCompany} trend={selectedTrend} />
+            </div>
+
+            <aside className="flex min-w-0 flex-col gap-6">
+              <ScoreCard company={selectedCompany} />
+              <SignalBreakdown company={selectedCompany} />
+              <AdvanceSimulator company={selectedCompany} />
+            </aside>
+          </section>
+        </div>
+      </section>
+
+      <ApplicationWorkflow applications={data.applicationRecords} />
+      <PresentationReadiness data={data} />
     </main>
   );
 }
 
 function TopBar() {
+  const navItems = [
+    { href: "#product", label: "Product" },
+    { href: "#market", label: "Model" },
+    { href: "#pipeline", label: "Pipeline" },
+    { href: "#dashboard", label: "Dashboard" },
+    { href: "#apply", label: "Apply" }
+  ];
+
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-arx-ink/88 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-[1500px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
@@ -185,14 +223,560 @@ function TopBar() {
             <p className="truncate text-xs text-arx-muted">Founder intelligence dashboard</p>
           </div>
         </div>
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Presentation sections">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-arx-muted transition hover:bg-white/5 hover:text-white"
+              href={item.href}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Badge tone="blue">CSV handoff</Badge>
-          <Badge tone="green">Capital-ready score</Badge>
-          <Badge tone="amber">Demo data</Badge>
+          <Badge tone="green">Live demo</Badge>
+          <Badge tone="amber">Proxy data</Badge>
         </div>
       </div>
     </header>
   );
+}
+
+function ProductHero({
+  data,
+  selectedCompany
+}: {
+  data: DashboardData;
+  selectedCompany: ScoreRecord;
+}) {
+  const currentAdvance = calculateAdvanceAmount(selectedCompany.arr, selectedCompany.advanceRate);
+  const consentedApplications = data.applicationRecords.filter(
+    (record) => record.behavioralConsent
+  ).length;
+  const averageAcceptanceRate = average(
+    data.behavioralRecords.map((record) => record.acceptanceRate)
+  );
+
+  return (
+    <section
+      id="product"
+      className="relative isolate overflow-hidden border-b border-white/10"
+    >
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(120deg,rgba(5,7,13,0.98)_0%,rgba(8,17,31,0.84)_50%,rgba(37,99,235,0.22)_100%)]" />
+      <ProductScene data={data} selectedCompany={selectedCompany} />
+      <div className="mx-auto grid min-h-[560px] max-w-[1500px] items-center gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_520px] lg:px-8">
+        <div className="max-w-4xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-arx-blue/40 bg-arx-blue/15 px-3 py-1 text-xs font-medium text-blue-100">
+            <Sparkles className="h-3.5 w-3.5" />
+            AI Revenue Exchange
+          </div>
+          <h1 className="mt-5 text-4xl font-bold tracking-normal text-white sm:text-5xl lg:text-6xl">
+            Capital for AI software companies, underwritten by product-health intelligence.
+          </h1>
+          <p className="mt-5 max-w-3xl text-base leading-7 text-arx-muted sm:text-lg">
+            ARX advances cash against subscription contracts and monitors aggregate
+            product signals every week, so repayment risk is visible before it reaches
+            stale financial statements.
+          </p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <a
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-arx-blue px-5 text-sm font-semibold text-white transition hover:bg-blue-500"
+              href="#dashboard"
+            >
+              View live dashboard
+              <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-5 text-sm font-semibold text-white transition hover:border-arx-cyan hover:bg-white/10"
+              href="#pipeline"
+            >
+              See underwriting flow
+              <Network className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+
+        <div className="grid gap-3 rounded-lg border border-white/12 bg-arx-ink/75 p-4 shadow-arx-card backdrop-blur">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <HeroMetric label="Scored companies" value={data.summary.companyCount.toString()} />
+            <HeroMetric label="Demo applications" value={data.applicationRecords.length.toString()} />
+            <HeroMetric label="Current advance" value={currency(currentAdvance)} />
+            <HeroMetric label="Consent rate" value={percent(consentedApplications / Math.max(1, data.applicationRecords.length), 0)} />
+          </div>
+          <div className="rounded-lg border border-arx-line bg-arx-panel p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.16em] text-arx-muted">
+                  Behavioral signal sample
+                </p>
+                <p className="mt-2 text-2xl font-bold text-white">
+                  {percent(averageAcceptanceRate)}
+                </p>
+              </div>
+              <Zap className="h-8 w-8 text-arx-cyan" />
+            </div>
+            <p className="mt-3 text-xs leading-5 text-arx-muted">
+              Average output-acceptance proxy across the demo behavioral connector file.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProductScene({
+  data,
+  selectedCompany
+}: {
+  data: DashboardData;
+  selectedCompany: ScoreRecord;
+}) {
+  const bars = getSignals(selectedCompany).slice(0, 4);
+
+  return (
+    <div
+      className="pointer-events-none absolute bottom-8 right-4 hidden w-[560px] opacity-40 lg:block xl:right-14"
+      aria-hidden="true"
+    >
+      <div className="grid gap-3 rounded-lg border border-white/12 bg-arx-panel/80 p-4 shadow-arx-blue">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-arx-muted">ARX score room</p>
+            <p className="mt-1 text-xl font-bold text-white">{selectedCompany.companyId}</p>
+          </div>
+          <div className="rounded-full border border-arx-green/40 bg-arx-green/10 px-3 py-1 text-xs font-semibold text-green-100">
+            {formatScore(selectedCompany.capitalReadyScore)}
+          </div>
+        </div>
+        <div className="grid gap-2">
+          {bars.map((signal) => (
+            <div key={signal.key} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-medium text-white">{signal.label}</span>
+                <span className="text-xs text-arx-muted">
+                  {signal.value === null ? "Pending" : formatScore(signal.value)}
+                </span>
+              </div>
+              <div className="mt-2 h-2 rounded-full bg-white/10">
+                <div
+                  className="h-2 rounded-full bg-gradient-to-r from-arx-blue to-arx-cyan"
+                  style={{
+                    width: `${signal.value === null ? 8 : Math.max(0, Math.min(100, signal.value))}%`
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <SceneChip label="ARR" value={currency(selectedCompany.arr)} />
+          <SceneChip label="Portfolio" value={currency(data.summary.totalArr)} />
+          <SceneChip label="8w risk" value={percent(selectedCompany.badOutcomeProbability8w)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function JudgeProof({ data }: { data: DashboardData }) {
+  const proofCards = [
+    {
+      icon: CheckCircle2,
+      label: "Customer validation",
+      value: "Problem-led",
+      detail:
+        "ARX is built around a clear founder pain: AI companies need non-dilutive capital before banks understand their product health."
+    },
+    {
+      icon: Rocket,
+      label: "Execution",
+      value: `${data.summary.companyCount} records`,
+      detail:
+        "The live demo reads local scoring, trend, behavioral, financial, and application handoff files from the repo."
+    },
+    {
+      icon: WalletCards,
+      label: "Business potential",
+      value: "3 revenue streams",
+      detail:
+        "Interest spread, origination fees, and ARX Intelligence SaaS create lender revenue plus software margin."
+    }
+  ];
+
+  return (
+    <section className="border-b border-white/10 bg-arx-navy/70">
+      <div className="mx-auto grid max-w-[1500px] gap-4 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-8">
+        {proofCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <article key={card.label} className="rounded-lg border border-arx-line bg-arx-panel p-5">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm font-semibold text-white">{card.label}</p>
+                <Icon className="h-5 w-5 text-arx-cyan" />
+              </div>
+              <p className="mt-3 text-2xl font-bold text-white">{card.value}</p>
+              <p className="mt-2 text-sm leading-6 text-arx-muted">{card.detail}</p>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function MarketAndBusinessModel({ data }: { data: DashboardData }) {
+  const revenueStreams = [
+    {
+      label: "Interest spread",
+      value: "14% to 18%",
+      detail: "Borrow at institutional cost, advance to qualified AI SaaS companies, keep the spread."
+    },
+    {
+      label: "Origination fees",
+      value: "2.5%",
+      detail: "Collected when advances close and used to support the reserve model."
+    },
+    {
+      label: "ARX Intelligence SaaS",
+      value: "$250 to $2.5K",
+      detail: "Monthly software revenue for the behavioral intelligence dashboard."
+    }
+  ];
+
+  return (
+    <section id="market" className="scroll-mt-24 border-b border-white/10">
+      <div className="mx-auto max-w-[1500px] px-4 py-12 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Why now"
+          title="Two fast-growing markets, one underwritten blind spot"
+          description="Traditional revenue-based financing looks backward. ARX turns aggregate product behavior into a weekly capital-readiness view for AI software companies."
+        />
+
+        <div className="mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <StatCard
+              label="AI SaaS market"
+              value="$142B"
+              detail="2026 market cited in the business plan, growing 39% per year."
+            />
+            <StatCard
+              label="Revenue-based financing"
+              value="$17B"
+              detail="2026 lending category cited in the business plan, growing 62% per year."
+            />
+            <StatCard
+              label="Demo portfolio ARR"
+              value={currency(data.summary.totalArr)}
+              detail="Synthetic financial proxy currently driving the live dashboard."
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            {revenueStreams.map((stream) => (
+              <article key={stream.label} className="rounded-lg border border-arx-line bg-arx-panel p-5">
+                <p className="text-xs uppercase tracking-[0.16em] text-arx-muted">{stream.label}</p>
+                <p className="mt-3 text-3xl font-bold text-white">{stream.value}</p>
+                <p className="mt-3 text-sm leading-6 text-arx-muted">{stream.detail}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DataFlowShowcase() {
+  const stages = [
+    {
+      icon: LockKeyhole,
+      label: "Read-only connectors",
+      detail: "Mixpanel, Amplitude, Stripe, and Segment supply aggregate product and revenue signals."
+    },
+    {
+      icon: Activity,
+      label: "CompanySignals object",
+      detail: "Behavioral and financial features are merged into one underwriting payload."
+    },
+    {
+      icon: Gauge,
+      label: "Scoring engine",
+      detail: "Five product-health signals produce score, tier, action, and advance rate."
+    },
+    {
+      icon: Database,
+      label: "Airtable boundary",
+      detail: "The MVP stores score records in handoff CSVs now and keeps an Airtable adapter boundary ready."
+    },
+    {
+      icon: BarChart3,
+      label: "Founder dashboard",
+      detail: "The founder sees capital readiness, signal gaps, trends, sources, and advance guidance."
+    }
+  ];
+
+  return (
+    <section id="pipeline" className="scroll-mt-24 border-b border-white/10 bg-arx-navy/50">
+      <div className="mx-auto max-w-[1500px] px-4 py-12 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Data flow"
+          title="From product behavior to capital decision"
+          description="The demo shows the full operating loop: consented data access, scoring, dashboard display, and application review."
+        />
+        <div className="mt-8 grid gap-3 lg:grid-cols-5">
+          {stages.map((stage, index) => {
+            const Icon = stage.icon;
+            return (
+              <article key={stage.label} className="relative rounded-lg border border-arx-line bg-arx-panel p-5">
+                {index < stages.length - 1 ? (
+                  <ArrowRight className="absolute -right-5 top-8 hidden h-5 w-5 text-arx-muted lg:block" />
+                ) : null}
+                <Icon className="h-6 w-6 text-arx-cyan" />
+                <p className="mt-4 text-sm font-semibold text-white">{stage.label}</p>
+                <p className="mt-2 text-sm leading-6 text-arx-muted">{stage.detail}</p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ScoringIntelligence() {
+  const signals = [
+    ["Output acceptance", "Do users keep the AI output, or regenerate and abandon it?"],
+    ["Engagement", "Are sessions deepening and users returning with intent?"],
+    ["Retention", "Is subscription revenue stable across the monitoring window?"],
+    ["Concentration", "Does one customer create outsized repayment exposure?"],
+    ["Sentiment", "Can aggregate frustration signals expose churn risk early?"]
+  ];
+
+  const tiers = [
+    ["85+", "Tier 1", "Highest confidence, strongest advance guidance."],
+    ["55 to 84", "Tier 2 or 3", "Monitor or review based on signal weakness."],
+    ["Below 55", "Tier 4", "Declined until product-health signals recover."]
+  ];
+
+  return (
+    <section className="border-b border-white/10">
+      <div className="mx-auto max-w-[1500px] px-4 py-12 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Underwriting intelligence"
+          title="The score explains what founders can improve"
+          description="The UI treats capital_ready_score as higher-is-healthier, then exposes the weakest signals so the founder knows what would unlock better terms."
+        />
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {signals.map(([label, detail]) => (
+              <article key={label} className="rounded-lg border border-arx-line bg-arx-panel p-5">
+                <p className="text-sm font-semibold text-white">{label}</p>
+                <p className="mt-2 text-sm leading-6 text-arx-muted">{detail}</p>
+              </article>
+            ))}
+          </div>
+          <div className="rounded-lg border border-arx-blue/35 bg-arx-panel p-5 shadow-arx-blue">
+            <p className="text-xs uppercase tracking-[0.16em] text-arx-muted">Score policy</p>
+            <div className="mt-5 space-y-3">
+              {tiers.map(([range, tier, detail]) => (
+                <div key={range} className="rounded-lg border border-arx-line bg-arx-ink p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <p className="text-2xl font-bold text-white">{range}</p>
+                    <Badge tone={tier === "Tier 1" ? "green" : tier === "Tier 4" ? "red" : "amber"}>
+                      {tier}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-arx-muted">{detail}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 text-xs leading-5 text-arx-muted">
+              Legacy lower-is-healthier risk scores remain secondary. The presentation and
+              dashboard use capital-ready score as the founder-facing metric.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ApplicationWorkflow({ applications }: { applications: ApplicationRecord[] }) {
+  const shownApplications = applications.slice(0, 5);
+  const averageArr = average(applications.map((record) => record.arr));
+  const consentRate =
+    applications.filter((record) => record.behavioralConsent).length /
+    Math.max(1, applications.length);
+
+  return (
+    <section id="apply" className="scroll-mt-24 border-t border-white/10 bg-arx-navy/60">
+      <div className="mx-auto max-w-[1500px] px-4 py-12 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Application workflow"
+          title="The capital request path is visible for the demo"
+          description="The handoff includes fake application records so judges can see how a founder submission connects to scoring, review, and advance guidance."
+        />
+        <div className="mt-8 grid gap-6 xl:grid-cols-[420px_1fr]">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+            <StatCard label="Applications loaded" value={applications.length.toString()} detail="Demo records from the application handoff file." />
+            <StatCard label="Behavioral consent" value={percent(consentRate, 0)} detail="Consent determines whether the richer signal model can run." />
+            <StatCard label="Average applicant ARR" value={currency(averageArr)} detail="Used to show the advance amount conversation." />
+          </div>
+          <div className="overflow-hidden rounded-lg border border-arx-line bg-arx-panel">
+            <div className="flex items-center justify-between gap-3 border-b border-arx-line px-4 py-4">
+              <div>
+                <h2 className="text-base font-semibold text-white">Demo application queue</h2>
+                <p className="mt-1 text-xs text-arx-muted">
+                  Fake records for workflow testing, not real applicant companies.
+                </p>
+              </div>
+              <ClipboardList className="h-5 w-5 text-arx-cyan" />
+            </div>
+            <div className="table-scroll overflow-auto">
+              <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+                <thead className="bg-arx-panel2 text-xs uppercase tracking-[0.12em] text-arx-muted">
+                  <tr>
+                    <th className="border-b border-arx-line px-4 py-3 font-semibold">Applicant</th>
+                    <th className="border-b border-arx-line px-4 py-3 font-semibold">ARR</th>
+                    <th className="border-b border-arx-line px-4 py-3 font-semibold">Consent</th>
+                    <th className="border-b border-arx-line px-4 py-3 font-semibold">Score</th>
+                    <th className="border-b border-arx-line px-4 py-3 font-semibold">Advance rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shownApplications.map((record) => (
+                    <tr key={record.companyId} className="border-b border-arx-line/70">
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-white">{record.companyName}</p>
+                        <p className="mt-1 text-xs text-arx-muted">{record.companyId}</p>
+                      </td>
+                      <td className="px-4 py-3 text-white">{currency(record.arr)}</td>
+                      <td className="px-4 py-3">
+                        <Badge tone={record.behavioralConsent ? "green" : "amber"}>
+                          {record.behavioralConsent ? "Yes" : "No"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 font-bold text-white">
+                        {formatScore(record.capitalReadyScore)}
+                      </td>
+                      <td className="px-4 py-3 text-white">{percent(record.advanceRate)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PresentationReadiness({ data }: { data: DashboardData }) {
+  const items = [
+    "Public copy is brand-led and role-neutral for judges and investors.",
+    "Dashboard reads CSV handoff files and keeps future Airtable integration behind an adapter.",
+    "Capital-ready score is higher-is-healthier across the product.",
+    "Every demo-data surface is labeled as synthetic or proxy data.",
+    "The application workflow, data flow, score explanation, and simulator are all visible on one URL."
+  ];
+
+  return (
+    <section className="border-t border-white/10">
+      <div className="mx-auto max-w-[1500px] px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-6 rounded-lg border border-arx-green/30 bg-arx-green/10 p-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p className="text-xs uppercase tracking-[0.16em] text-green-100">Presentation ready</p>
+            <h2 className="mt-3 text-3xl font-bold text-white">
+              One page for pitch, proof, and live product inspection.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-green-50/80">
+              This build is designed for the Startup Wednesday judging flow: explain the
+              business, show the data moat, then let the room inspect the working dashboard.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {items.map((item) => (
+              <div key={item} className="flex gap-3 rounded-lg border border-green-300/20 bg-arx-ink/60 p-3">
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-arx-green" />
+                <p className="text-sm leading-6 text-green-50/85">{item}</p>
+              </div>
+            ))}
+            <div className="rounded-lg border border-arx-line bg-arx-panel p-4 text-sm leading-6 text-arx-muted">
+              Loaded for this demo: {data.latestScores.length} latest scores,{" "}
+              {data.trendRecords.length} trend rows, {data.behavioralRecords.length} behavioral
+              rows, {data.financialMetrics.length} financial rows, and{" "}
+              {data.applicationRecords.length} application records.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  description
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="max-w-4xl">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-arx-cyan">{eyebrow}</p>
+      <h2 className="mt-3 text-3xl font-bold tracking-normal text-white sm:text-4xl">{title}</h2>
+      <p className="mt-3 text-sm leading-6 text-arx-muted sm:text-base">{description}</p>
+    </div>
+  );
+}
+
+function HeroMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-arx-line bg-arx-panel p-4">
+      <p className="text-xs uppercase tracking-[0.14em] text-arx-muted">{label}</p>
+      <p className="mt-2 truncate text-2xl font-bold text-white">{value}</p>
+    </div>
+  );
+}
+
+function SceneChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+      <p className="text-[10px] uppercase tracking-[0.12em] text-arx-muted">{label}</p>
+      <p className="mt-1 truncate text-xs font-bold text-white">{value}</p>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  detail
+}: {
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <article className="rounded-lg border border-arx-line bg-arx-panel p-5">
+      <p className="text-xs uppercase tracking-[0.16em] text-arx-muted">{label}</p>
+      <p className="mt-3 text-3xl font-bold text-white">{value}</p>
+      <p className="mt-3 text-sm leading-6 text-arx-muted">{detail}</p>
+    </article>
+  );
+}
+
+function average(values: number[]): number {
+  const finiteValues = values.filter((value) => Number.isFinite(value));
+  if (finiteValues.length === 0) {
+    return 0;
+  }
+  return finiteValues.reduce((sum, value) => sum + value, 0) / finiteValues.length;
 }
 
 function Hero({ summaryDate }: { summaryDate: string }) {

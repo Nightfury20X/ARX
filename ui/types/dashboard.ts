@@ -48,8 +48,54 @@ export interface DashboardSummary {
   tierCounts: Record<1 | 2 | 3 | 4, number>;
 }
 
+export interface ApplicationRecord {
+  companyName: string;
+  companyId: string;
+  companyIdentityNote: string;
+  arr: number;
+  behavioralConsent: boolean;
+  submissionDate: string;
+  capitalReadyScore: number;
+  tier: 1 | 2 | 3 | 4;
+  advanceRate: number;
+}
+
+export interface BehavioralRecord {
+  companyId: string;
+  companyIdentityNote: string;
+  weekStart: string;
+  acceptanceRate: number;
+  sessionCount: number;
+  sessionDurationChangePct: number;
+  activeUsers: number;
+  eventsPerSession: number;
+  championUserRate: number;
+  dataSources: string[];
+}
+
+export interface FinancialMetricRecord {
+  companyId: string;
+  companyIdentityNote: string;
+  weekStart: string;
+  grossRevenue: number;
+  netRevenue: number;
+  mrr: number;
+  arr: number;
+  mrrChangePct: number;
+  cancellationRate: number;
+  activeCustomers: number;
+  topCustomerConcentration: number;
+  capitalReadyScore: number;
+  tier: 1 | 2 | 3 | 4;
+  advanceRate: number;
+  creditAction: CreditAction;
+}
+
 export interface DashboardData {
   latestScores: ScoreRecord[];
   trendRecords: TrendRecord[];
+  applicationRecords: ApplicationRecord[];
+  behavioralRecords: BehavioralRecord[];
+  financialMetrics: FinancialMetricRecord[];
   summary: DashboardSummary;
 }

@@ -12,8 +12,10 @@ intelligence: ARX reads aggregate product-health signals from systems such as
 Mixpanel, Amplitude, Stripe, and Segment to detect repayment and churn risk before
 it appears in bank statements.
 
-The dashboard is the founder-facing screen. It must show the company health score,
-signal breakdown, trend history, and the Advance Amount Simulator that explains how
+The UI is now both the judge/investor-facing presentation website and the
+founder-facing dashboard. It must explain the ARX product story, market, data
+flow, scoring model, application workflow, company health score, signal
+breakdown, trend history, and the Advance Amount Simulator that explains how
 behavioral data can unlock better capital terms.
 
 ## Vaibhav's UI Responsibilities
@@ -44,6 +46,9 @@ The first UI PR uses local handoff CSVs:
 
 - Latest score records: `../handoff/vaibhav_dashboard_latest_scores.csv`
 - Trend records: `../handoff/vaibhav_dashboard_8_week_trend.csv`
+- Behavioral connector sample: `../handoff/anish_behavioral_connector_sample.csv`
+- Financial visualization metrics: `../handoff/financial_data_metrics_for_visualization.csv`
+- Demo applications: `../handoff/mike_application_demo_companies.csv`
 
 These records are synthetic/demo data built from UCI Online Retail proxy data and
 synthetic ARX behavior. They are not live Stripe, Mixpanel, Amplitude, or Segment
@@ -118,4 +123,3 @@ Expected future env vars:
 - `AIRTABLE_API_KEY`
 - `AIRTABLE_BASE_ID`
 - `AIRTABLE_SCORES_TABLE`
-

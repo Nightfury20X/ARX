@@ -4,7 +4,14 @@ import { parse } from "csv-parse/sync";
 
 import { buildPortfolioSummary, sortTrend } from "@/lib/domain/dashboard";
 import type { DashboardRepository } from "@/lib/data/dashboard-repository";
-import type { DashboardData, ScoreRecord, TrendRecord } from "@/types/dashboard";
+import type {
+  ApplicationRecord,
+  BehavioralRecord,
+  DashboardData,
+  FinancialMetricRecord,
+  ScoreRecord,
+  TrendRecord
+} from "@/types/dashboard";
 
 type CsvRow = Record<string, string | undefined>;
 
@@ -20,6 +27,27 @@ const TREND_PATH = path.resolve(
   "..",
   "handoff",
   "vaibhav_dashboard_8_week_trend.csv"
+);
+
+const APPLICATIONS_PATH = path.resolve(
+  process.cwd(),
+  "..",
+  "handoff",
+  "mike_application_demo_companies.csv"
+);
+
+const BEHAVIORAL_PATH = path.resolve(
+  process.cwd(),
+  "..",
+  "handoff",
+  "anish_behavioral_connector_sample.csv"
+);
+
+const FINANCIAL_METRICS_PATH = path.resolve(
+  process.cwd(),
+  "..",
+  "handoff",
+  "financial_data_metrics_for_visualization.csv"
 );
 
 function numberFrom(row: CsvRow, key: string): number {
@@ -55,6 +83,10 @@ function dataSourcesFrom(row: CsvRow): string[] {
     .filter(Boolean);
 }
 
+function booleanFrom(row: CsvRow, key: string): boolean {
+  return (row[key] ?? "").trim().toLowerCase() === "true";
+}
+
 export function mapScoreRow(row: CsvRow): ScoreRecord {
   return {
     companyId: row.company_id ?? "unknown",
@@ -85,6 +117,55 @@ export function mapTrendRow(row: CsvRow): TrendRecord {
   };
 }
 
+export function mapApplicationRow(row: CsvRow): ApplicationRecord {
+  return {
+    companyName: row.company_name ?? "Demo company",
+    companyId: row.company_id ?? "unknown",
+    companyIdentityNote: row.company_identity_note ?? "",
+    arr: numberFrom(row, "arr"),
+    behavioralConsent: booleanFrom(row, "behavioral_consent"),
+    submissionDate: row.submission_date ?? "",
+    capitalReadyScore: numberFrom(row, "capital_ready_score"),
+    tier: tierFrom(row),
+    advanceRate: numberFrom(row, "final_advance_rate")
+  };
+}
+
+export function mapBehavioralRow(row: CsvRow): BehavioralRecord {
+  return {
+    companyId: row.company_id ?? "unknown",
+    companyIdentityNote: row.company_identity_note ?? "",
+    weekStart: row.week_start ?? "",
+    acceptanceRate: numberFrom(row, "acceptance_rate"),
+    sessionCount: numberFrom(row, "session_count"),
+    sessionDurationChangePct: numberFrom(row, "session_duration_change_pct"),
+    activeUsers: numberFrom(row, "active_users"),
+    eventsPerSession: numberFrom(row, "events_per_session"),
+    championUserRate: numberFrom(row, "champion_user_rate"),
+    dataSources: dataSourcesFrom(row)
+  };
+}
+
+export function mapFinancialMetricRow(row: CsvRow): FinancialMetricRecord {
+  return {
+    companyId: row.company_id ?? "unknown",
+    companyIdentityNote: row.company_identity_note ?? "",
+    weekStart: row.week_start ?? "",
+    grossRevenue: numberFrom(row, "gross_revenue"),
+    netRevenue: numberFrom(row, "net_revenue"),
+    mrr: numberFrom(row, "mrr"),
+    arr: numberFrom(row, "arr"),
+    mrrChangePct: numberFrom(row, "mrr_change_pct"),
+    cancellationRate: numberFrom(row, "cancellation_rate"),
+    activeCustomers: numberFrom(row, "active_customers"),
+    topCustomerConcentration: numberFrom(row, "top_customer_concentration"),
+    capitalReadyScore: numberFrom(row, "capital_ready_score"),
+    tier: tierFrom(row),
+    advanceRate: numberFrom(row, "final_advance_rate"),
+    creditAction: (row.final_credit_action ?? "Declined") as ScoreRecord["creditAction"]
+  };
+}
+
 async function readCsvRows(filePath: string): Promise<CsvRow[]> {
   const content = await readFile(filePath, "utf8");
   return parse(content, {
@@ -107,15 +188,37 @@ export class CsvDashboardRepository implements DashboardRepository {
     return sortTrend(rows.map(mapTrendRow));
   }
 
+  async getApplicationRecords(): Promise<ApplicationRecord[]> {
+    const rows = await readCsvRows(APPLICATIONS_PATH);
+    return rows.map(mapApplicationRow);
+  }
+
+  async getBehavioralRecords(): Promise<BehavioralRecord[]> {
+    const rows = await readCsvRows(BEHAVIORAL_PATH);
+    return rows.map(mapBehavioralRow);
+  }
+
+  async getFinancialMetrics(): Promise<FinancialMetricRecord[]> {
+    const rows = await readCsvRows(FINANCIAL_METRICS_PATH);
+    return rows.map(mapFinancialMetricRow);
+  }
+
   async getDashboardData(): Promise<DashboardData> {
-    const [latestScores, trendRecords] = await Promise.all([
-      this.getLatestScores(),
-      this.getTrendRecords()
-    ]);
+    const [latestScores, trendRecords, applicationRecords, behavioralRecords, financialMetrics] =
+      await Promise.all([
+        this.getLatestScores(),
+        this.getTrendRecords(),
+        this.getApplicationRecords(),
+        this.getBehavioralRecords(),
+        this.getFinancialMetrics()
+      ]);
 
     return {
       latestScores,
       trendRecords,
+      applicationRecords,
+      behavioralRecords,
+      financialMetrics,
       summary: buildPortfolioSummary(latestScores)
     };
   }

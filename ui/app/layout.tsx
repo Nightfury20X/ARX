@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ARX Intelligence Dashboard",
-  description: "Founder-facing ARX capital readiness dashboard."
+  title: "ARX | AI Revenue Exchange",
+  description:
+    "Investor-ready ARX product demo with capital readiness scoring, behavioral signals, and advance guidance."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
