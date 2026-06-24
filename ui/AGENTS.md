@@ -49,10 +49,15 @@ The first UI PR uses local handoff CSVs:
 - Behavioral connector sample: `../handoff/anish_behavioral_connector_sample.csv`
 - Financial visualization metrics: `../handoff/financial_data_metrics_for_visualization.csv`
 - Demo applications: `../handoff/mike_application_demo_companies.csv`
+- Display-name map: `../handoff/company_name_map.csv`
 
 These records are synthetic/demo data built from UCI Online Retail proxy data and
 synthetic ARX behavior. They are not live Stripe, Mixpanel, Amplitude, or Segment
 data.
+
+`company_name_map.csv` maps synthetic borrower bucket IDs to realistic fictional
+company names for presentation polish. Do not replace the original IDs in the
+source scoring CSVs; use the map as a display layer only.
 
 ## Folder Structure
 

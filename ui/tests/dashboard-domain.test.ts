@@ -37,17 +37,36 @@ const baseRow = {
   data_sources: "uci_retail_proxy,synthetic_behavior"
 };
 
+const companyNameMap = new Map([
+  [
+    "arx_001",
+    {
+      companyName: "NeuralPilot Labs",
+      companyCategory: "AI operations"
+    }
+  ]
+]);
+
 describe("dashboard data normalization", () => {
   it("maps latest-score CSV rows to the UI contract", () => {
     const record = mapScoreRow(baseRow);
 
     expect(record.companyId).toBe("arx_001");
+    expect(record.companyName).toBe("arx_001");
     expect(record.capitalReadyScore).toBe(89.5);
     expect(record.legacyRiskScore).toBe(10.5);
     expect(record.tier).toBe(1);
     expect(record.creditAction).toBe("Advance eligible");
     expect(record.sentimentScore).toBeNull();
     expect(record.dataSources).toEqual(["uci_retail_proxy", "synthetic_behavior"]);
+  });
+
+  it("applies mapped company display names without changing company IDs", () => {
+    const record = mapScoreRow(baseRow, companyNameMap);
+
+    expect(record.companyId).toBe("arx_001");
+    expect(record.companyName).toBe("NeuralPilot Labs");
+    expect(record.companyCategory).toBe("AI operations");
   });
 
   it("maps trend rows with week_start for chart rendering", () => {
@@ -58,7 +77,8 @@ describe("dashboard data normalization", () => {
   });
 
   it("maps application rows for the application workflow section", () => {
-    const application = mapApplicationRow({
+    const application = mapApplicationRow(
+      {
       company_name: "Demo AI Co 01",
       company_id: "arx_001",
       company_identity_note: "Fake demo application company",
@@ -68,9 +88,11 @@ describe("dashboard data normalization", () => {
       capital_ready_score: "89.5",
       final_tier: "1",
       final_advance_rate: "0.875"
-    });
+      },
+      companyNameMap
+    );
 
-    expect(application.companyName).toBe("Demo AI Co 01");
+    expect(application.companyName).toBe("NeuralPilot Labs");
     expect(application.behavioralConsent).toBe(true);
     expect(application.advanceRate).toBe(0.875);
   });

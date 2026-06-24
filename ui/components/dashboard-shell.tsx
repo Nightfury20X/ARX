@@ -54,7 +54,7 @@ import type {
 } from "@/types/dashboard";
 
 type SortKey =
-  | "companyId"
+  | "companyName"
   | "capitalReadyScore"
   | "tier"
   | "creditAction"
@@ -63,7 +63,7 @@ type SortKey =
   | "badOutcomeProbability8w";
 
 const SORT_LABELS: Record<SortKey, string> = {
-  companyId: "Company",
+  companyName: "Company",
   capitalReadyScore: "Score",
   tier: "Tier",
   creditAction: "Action",
@@ -103,6 +103,8 @@ export function DashboardShell({ data }: DashboardShellProps) {
       .filter((record) => {
         const matchesQuery =
           !loweredQuery ||
+          record.companyName.toLowerCase().includes(loweredQuery) ||
+          record.companyCategory.toLowerCase().includes(loweredQuery) ||
           record.companyId.toLowerCase().includes(loweredQuery) ||
           record.creditAction.toLowerCase().includes(loweredQuery);
         const matchesAction =
@@ -344,7 +346,8 @@ function ProductScene({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.16em] text-arx-muted">ARX score room</p>
-            <p className="mt-1 text-xl font-bold text-white">{selectedCompany.companyId}</p>
+            <p className="mt-1 text-xl font-bold text-white">{selectedCompany.companyName}</p>
+            <p className="mt-1 text-xs text-arx-muted">Trace ID {selectedCompany.companyId}</p>
           </div>
           <div className="rounded-full border border-arx-green/40 bg-arx-green/10 px-3 py-1 text-xs font-semibold text-green-100">
             {formatScore(selectedCompany.capitalReadyScore)}
@@ -649,8 +652,10 @@ function ApplicationWorkflow({ applications }: { applications: ApplicationRecord
                   {shownApplications.map((record) => (
                     <tr key={record.companyId} className="border-b border-arx-line/70">
                       <td className="px-4 py-3">
-                        <p className="font-semibold text-white">{record.companyName}</p>
-                        <p className="mt-1 text-xs text-arx-muted">{record.companyId}</p>
+                    <p className="font-semibold text-white">{record.companyName}</p>
+                    <p className="mt-1 text-xs text-arx-muted">
+                      {record.companyCategory} - {record.companyId}
+                    </p>
                       </td>
                       <td className="px-4 py-3 text-white">{currency(record.arr)}</td>
                       <td className="px-4 py-3">
@@ -943,7 +948,7 @@ function CompanyTable({
   setSortKey: (value: SortKey) => void;
 }) {
   const headers: Array<{ key: SortKey; label: string; align?: "right" }> = [
-    { key: "companyId", label: "Company" },
+    { key: "companyName", label: "Company" },
     { key: "capitalReadyScore", label: "Score", align: "right" },
     { key: "tier", label: "Tier", align: "right" },
     { key: "creditAction", label: "Action" },
@@ -958,7 +963,7 @@ function CompanyTable({
       return;
     }
     setSortKey(key);
-    setSortDirection(key === "companyId" || key === "creditAction" ? "asc" : "desc");
+    setSortDirection(key === "companyName" || key === "creditAction" ? "asc" : "desc");
   }
 
   return (
@@ -1011,10 +1016,10 @@ function CompanyTable({
                     className="font-semibold text-white underline-offset-4 hover:underline"
                     onClick={() => onSelect(record.companyId)}
                   >
-                    {record.companyId}
+                    {record.companyName}
                   </button>
                   <p className="mt-1 max-w-[260px] truncate text-xs text-arx-muted">
-                    {record.companyIdentityNote}
+                    {record.companyCategory} - {record.companyId}
                   </p>
                 </td>
                 <td className="px-4 py-3 text-right font-bold text-white">
@@ -1053,7 +1058,10 @@ function ScoreCard({ company }: { company: ScoreRecord }) {
           <p className="text-xs uppercase tracking-[0.18em] text-arx-muted">
             Selected company
           </p>
-          <h2 className="mt-2 truncate text-2xl font-bold text-white">{company.companyId}</h2>
+          <h2 className="mt-2 truncate text-2xl font-bold text-white">{company.companyName}</h2>
+          <p className="mt-1 text-xs text-arx-muted">
+            {company.companyCategory} - trace ID {company.companyId}
+          </p>
           <p className="mt-1 text-xs text-arx-muted">Last updated {company.scoringDate}</p>
         </div>
         <Badge tone={ACTION_TONE[company.creditAction]}>{company.creditAction}</Badge>
@@ -1243,7 +1251,7 @@ function TrendPanel({
         <div>
           <h2 className="text-base font-semibold text-white">8-week capital-ready trend</h2>
           <p className="mt-1 text-xs text-arx-muted">
-            {company.companyId} historical records from dashboard trend data.
+            {company.companyName} historical records from dashboard trend data.
           </p>
         </div>
         <LineChartIcon className="h-5 w-5 text-arx-cyan" />

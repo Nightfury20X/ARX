@@ -14,6 +14,11 @@ import type {
 } from "@/types/dashboard";
 
 type CsvRow = Record<string, string | undefined>;
+type CompanyNameInfo = {
+  companyName: string;
+  companyCategory: string;
+};
+type CompanyNameMap = Map<string, CompanyNameInfo>;
 
 const LATEST_SCORES_PATH = path.resolve(
   process.cwd(),
@@ -48,6 +53,13 @@ const FINANCIAL_METRICS_PATH = path.resolve(
   "..",
   "handoff",
   "financial_data_metrics_for_visualization.csv"
+);
+
+const COMPANY_NAME_MAP_PATH = path.resolve(
+  process.cwd(),
+  "..",
+  "handoff",
+  "company_name_map.csv"
 );
 
 function numberFrom(row: CsvRow, key: string): number {
@@ -87,9 +99,24 @@ function booleanFrom(row: CsvRow, key: string): boolean {
   return (row[key] ?? "").trim().toLowerCase() === "true";
 }
 
-export function mapScoreRow(row: CsvRow): ScoreRecord {
+function companyInfoFrom(
+  row: CsvRow,
+  companyNames: CompanyNameMap = new Map()
+): CompanyNameInfo {
+  const companyId = row.company_id ?? "unknown";
+  const mapped = companyNames.get(companyId);
+  return {
+    companyName: mapped?.companyName ?? row.company_name ?? companyId,
+    companyCategory: mapped?.companyCategory ?? row.company_category ?? "Demo company"
+  };
+}
+
+export function mapScoreRow(row: CsvRow, companyNames?: CompanyNameMap): ScoreRecord {
+  const companyInfo = companyInfoFrom(row, companyNames);
   return {
     companyId: row.company_id ?? "unknown",
+    companyName: companyInfo.companyName,
+    companyCategory: companyInfo.companyCategory,
     companyIdentityNote: row.company_identity_note ?? "",
     scoringDate: row.scoring_date ?? "",
     capitalReadyScore: numberFrom(row, "capital_ready_score"),
@@ -110,17 +137,19 @@ export function mapScoreRow(row: CsvRow): ScoreRecord {
   };
 }
 
-export function mapTrendRow(row: CsvRow): TrendRecord {
+export function mapTrendRow(row: CsvRow, companyNames?: CompanyNameMap): TrendRecord {
   return {
-    ...mapScoreRow(row),
+    ...mapScoreRow(row, companyNames),
     weekStart: row.week_start ?? row.scoring_date ?? ""
   };
 }
 
-export function mapApplicationRow(row: CsvRow): ApplicationRecord {
+export function mapApplicationRow(row: CsvRow, companyNames?: CompanyNameMap): ApplicationRecord {
+  const companyInfo = companyInfoFrom(row, companyNames);
   return {
-    companyName: row.company_name ?? "Demo company",
+    companyName: companyInfo.companyName,
     companyId: row.company_id ?? "unknown",
+    companyCategory: companyInfo.companyCategory,
     companyIdentityNote: row.company_identity_note ?? "",
     arr: numberFrom(row, "arr"),
     behavioralConsent: booleanFrom(row, "behavioral_consent"),
@@ -131,9 +160,12 @@ export function mapApplicationRow(row: CsvRow): ApplicationRecord {
   };
 }
 
-export function mapBehavioralRow(row: CsvRow): BehavioralRecord {
+export function mapBehavioralRow(row: CsvRow, companyNames?: CompanyNameMap): BehavioralRecord {
+  const companyInfo = companyInfoFrom(row, companyNames);
   return {
     companyId: row.company_id ?? "unknown",
+    companyName: companyInfo.companyName,
+    companyCategory: companyInfo.companyCategory,
     companyIdentityNote: row.company_identity_note ?? "",
     weekStart: row.week_start ?? "",
     acceptanceRate: numberFrom(row, "acceptance_rate"),
@@ -146,9 +178,15 @@ export function mapBehavioralRow(row: CsvRow): BehavioralRecord {
   };
 }
 
-export function mapFinancialMetricRow(row: CsvRow): FinancialMetricRecord {
+export function mapFinancialMetricRow(
+  row: CsvRow,
+  companyNames?: CompanyNameMap
+): FinancialMetricRecord {
+  const companyInfo = companyInfoFrom(row, companyNames);
   return {
     companyId: row.company_id ?? "unknown",
+    companyName: companyInfo.companyName,
+    companyCategory: companyInfo.companyCategory,
     companyIdentityNote: row.company_identity_note ?? "",
     weekStart: row.week_start ?? "",
     grossRevenue: numberFrom(row, "gross_revenue"),
@@ -175,32 +213,62 @@ async function readCsvRows(filePath: string): Promise<CsvRow[]> {
   }) as CsvRow[];
 }
 
+async function readCompanyNameMap(): Promise<CompanyNameMap> {
+  const rows = await readCsvRows(COMPANY_NAME_MAP_PATH);
+  return new Map(
+    rows
+      .filter((row) => row.company_id && row.company_name)
+      .map((row) => [
+        row.company_id as string,
+        {
+          companyName: row.company_name as string,
+          companyCategory: row.company_category ?? "Demo company"
+        }
+      ])
+  );
+}
+
 export class CsvDashboardRepository implements DashboardRepository {
   async getLatestScores(): Promise<ScoreRecord[]> {
-    const rows = await readCsvRows(LATEST_SCORES_PATH);
+    const [rows, companyNames] = await Promise.all([
+      readCsvRows(LATEST_SCORES_PATH),
+      readCompanyNameMap()
+    ]);
     return rows
-      .map(mapScoreRow)
+      .map((row) => mapScoreRow(row, companyNames))
       .sort((a, b) => b.capitalReadyScore - a.capitalReadyScore);
   }
 
   async getTrendRecords(): Promise<TrendRecord[]> {
-    const rows = await readCsvRows(TREND_PATH);
-    return sortTrend(rows.map(mapTrendRow));
+    const [rows, companyNames] = await Promise.all([
+      readCsvRows(TREND_PATH),
+      readCompanyNameMap()
+    ]);
+    return sortTrend(rows.map((row) => mapTrendRow(row, companyNames)));
   }
 
   async getApplicationRecords(): Promise<ApplicationRecord[]> {
-    const rows = await readCsvRows(APPLICATIONS_PATH);
-    return rows.map(mapApplicationRow);
+    const [rows, companyNames] = await Promise.all([
+      readCsvRows(APPLICATIONS_PATH),
+      readCompanyNameMap()
+    ]);
+    return rows.map((row) => mapApplicationRow(row, companyNames));
   }
 
   async getBehavioralRecords(): Promise<BehavioralRecord[]> {
-    const rows = await readCsvRows(BEHAVIORAL_PATH);
-    return rows.map(mapBehavioralRow);
+    const [rows, companyNames] = await Promise.all([
+      readCsvRows(BEHAVIORAL_PATH),
+      readCompanyNameMap()
+    ]);
+    return rows.map((row) => mapBehavioralRow(row, companyNames));
   }
 
   async getFinancialMetrics(): Promise<FinancialMetricRecord[]> {
-    const rows = await readCsvRows(FINANCIAL_METRICS_PATH);
-    return rows.map(mapFinancialMetricRow);
+    const [rows, companyNames] = await Promise.all([
+      readCsvRows(FINANCIAL_METRICS_PATH),
+      readCompanyNameMap()
+    ]);
+    return rows.map((row) => mapFinancialMetricRow(row, companyNames));
   }
 
   async getDashboardData(): Promise<DashboardData> {

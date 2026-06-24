@@ -30,6 +30,10 @@ Important identity note: the `arx_###` company IDs are synthetic borrower bucket
 - File: vaibhav_dashboard_8_week_trend.csv
 - Purpose: sample trend/sparkline data for the last 8 weekly records.
 
+- File: company_name_map.csv
+- Purpose: presentation-safe display-name layer that maps synthetic arx_### IDs to realistic fictional company names.
+- Important: do not modify the original scoring CSVs or imply these are real companies. The names are for demo readability only.
+
 ## Mike
 - File: mike_application_demo_companies.csv
 - Purpose: fake/demo application records for Zapier/Airtable/application flow.

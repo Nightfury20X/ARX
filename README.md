@@ -83,9 +83,9 @@ npm install
 npm run dev
 ```
 
-The first UI implementation reads dashboard, behavioral, financial, and
-application CSVs from `handoff/` and uses `capital_ready_score` as the primary
-higher-is-healthier founder-facing score.
+The first UI implementation reads dashboard, behavioral, financial, application,
+and display-name mapping CSVs from `handoff/` and uses `capital_ready_score` as
+the primary higher-is-healthier founder-facing score.
 
 ## Iranian Churn Dataset
 

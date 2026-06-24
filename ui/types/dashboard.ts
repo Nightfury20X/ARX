@@ -16,6 +16,8 @@ export interface SignalScore {
 
 export interface ScoreRecord {
   companyId: string;
+  companyName: string;
+  companyCategory: string;
   companyIdentityNote: string;
   scoringDate: string;
   capitalReadyScore: number;
@@ -51,6 +53,7 @@ export interface DashboardSummary {
 export interface ApplicationRecord {
   companyName: string;
   companyId: string;
+  companyCategory: string;
   companyIdentityNote: string;
   arr: number;
   behavioralConsent: boolean;
@@ -62,6 +65,8 @@ export interface ApplicationRecord {
 
 export interface BehavioralRecord {
   companyId: string;
+  companyName: string;
+  companyCategory: string;
   companyIdentityNote: string;
   weekStart: string;
   acceptanceRate: number;
@@ -75,6 +80,8 @@ export interface BehavioralRecord {
 
 export interface FinancialMetricRecord {
   companyId: string;
+  companyName: string;
+  companyCategory: string;
   companyIdentityNote: string;
   weekStart: string;
   grossRevenue: number;

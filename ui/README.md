@@ -32,9 +32,14 @@ The first UI implementation is CSV-first:
 - `../handoff/anish_behavioral_connector_sample.csv`
 - `../handoff/financial_data_metrics_for_visualization.csv`
 - `../handoff/mike_application_demo_companies.csv`
+- `../handoff/company_name_map.csv`
 
 The data is synthetic UCI Retail proxy data plus synthetic ARX behavior. It is not
 live Stripe, Mixpanel, Amplitude, or Segment data.
+
+`company_name_map.csv` is a presentation-safe display-name layer. It maps
+synthetic `arx_###` borrower bucket IDs to realistic fictional company names
+without changing the original scoring or handoff CSVs.
 
 ## Score Semantics
 
